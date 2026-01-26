@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Windows Activation & License Toolkit – psWinScript by Sebastian Januchowski</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    /* DARK (domyślny) */
+    --bg: #02040a;
+    --bg2: #050816;
+    --text: #e5f4ff;
+    --accent: #00f6ff;
+    --accent-soft: #00c2ff;
+    --accent-pink: #ff00c8;
+    --card: #050b16;
+    --border: #1b2a3b;
+    --code-bg: #050b16;
+    --scanline: rgba(255,255,255,0.03);
+}
+
+/* LIGHT MODE NADPISUJE ZMIENNE */
+body.light {
+    --bg: #f5f7fb;
+    --bg2: #e9edf7;
+    --text: #111827;
+    --accent: #2563eb;
+    --accent-soft: #3b82f6;
+    --accent-pink: #db2777;
+    --card: #ffffff;
+    --border: #cbd5e1;
+    --code-bg: #f3f4f6;
+    --scanline: rgba(0,0,0,0.03);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    background: radial-gradient(circle at top, var(--bg2) 0, var(--bg) 45%, #000000 100%);
+    color: var(--text);
+    overflow-x: hidden;
+    transition: background 0.4s ease, color 0.3s ease;
+}
+
+/* GRID + GLOW */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--scanline) 1px, transparent 1px),
+        linear-gradient(90deg, var(--scanline) 1px, transparent 1px);
+    background-size: 100% 2px, 2px 100%;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: -20%;
+    background: radial-gradient(circle at 10% 20%, rgba(0,246,255,0.18), transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(255,0,200,0.18), transparent 55%);
+    mix-blend-mode: screen;
+    animation: glowMove 18s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+body.light::after {
+    background: radial-gradient(circle at 10% 20%, rgba(37,99,235,0.18), transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(219,39,119,0.18), transparent 55%);
+}
+
+@keyframes glowMove {
+    0% { transform: translate3d(0,0,0); }
+    50% { transform: translate3d(-3%, 2%, 0); }
+    100% { transform: translate3d(3%, -2%, 0); }
+}
+
+.container {
+    position: relative;
+    max-width: 980px;
+    margin: 40px auto;
+    padding: 0 16px 40px;
+    z-index: 1;
+}
+
+.terminal-frame {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: radial-gradient(circle at top left, var(--bg2) 0, var(--card) 40%, var(--bg) 100%);
+    box-shadow:
+        0 0 40px rgba(0, 246, 255, 0.15),
+        0 0 80px rgba(0, 0, 0, 0.9);
+    overflow: hidden;
+    position: relative;
+}
+
+body.light .terminal-frame {
+    box-shadow:
+        0 0 30px rgba(37,99,235,0.18),
+        0 0 40px rgba(0,0,0,0.15);
+}
+
+.terminal-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: linear-gradient(90deg, var(--card), var(--bg2));
+    border-bottom: 1px solid var(--border);
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-btn {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #222;
+}
+
+.terminal-btn.red { background: #ff5f57; }
+.terminal-btn.yellow { background: #febc2e; }
+.terminal-btn.green { background: #28c840; }
+
+.terminal-title {
+    font-size: 12px;
+    color: #7f8ea3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+body.light .terminal-title {
+    color: #64748b;
+}
+
+.dark-toggle {
+    font-size: 11px;
+    color: #7f8ea3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+body.light .dark-toggle {
+    color: #475569;
+}
+
+.terminal-body {
+    padding: 20px 22px 26px;
+    position: relative;
+}
+
+.terminal-body::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        transparent 2px,
+        transparent 3px
+    );
+    mix-blend-mode: soft-light;
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+body.light .terminal-body::after {
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.03),
+        rgba(0,0,0,0.03) 1px,
+        transparent 2px,
+        transparent 3px
+    );
+}
+
+/* LOGO */
+.logo-polsoft {
+    font-size: 30px;
+    font-weight: 900;
+    text-align: center;
+    margin: 4px 0 2px 0;
+    animation: logoPulse 3s infinite ease-in-out;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-shadow: 0 0 12px rgba(0,246,255,0.7);
+    user-select: none;
+}
+
+.logo-polsoft .logo-sub {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 4px;
+    color: var(--accent-soft);
+    text-shadow: 0 0 10px rgba(0,246,255,0.5);
+}
+
+body.light .logo-polsoft {
+    text-shadow: 0 0 10px rgba(37,99,235,0.35);
+}
+
+body.light .logo-polsoft .logo-sub {
+    text-shadow: 0 0 8px rgba(37,99,235,0.25);
+}
+
+@keyframes logoPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+/* TABS */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin: 18px 0 14px;
+    overflow-x: auto;
+}
+
+.tab {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7f8ea3;
+    border-bottom: 2px solid transparent;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+body.light .tab {
+    color: #64748b;
+}
+
+.tab i {
+    margin-right: 6px;
+    color: var(--accent-soft);
+}
+
+.tab:hover {
+    color: var(--accent);
+}
+
+.tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* CONTENT */
+.content {
+    margin-top: 10px;
+    animation: fadeSlideIn 0.4s ease;
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1, h2 {
+    font-size: 15px;
+    margin: 18px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(0,246,255,0.25);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+}
+
+body.light h1, body.light h2 {
+    border-bottom-color: rgba(37,99,235,0.35);
+}
+
+h1 i, h2 i {
+    color: var(--accent-pink);
+}
+
+p, li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+ul, ol {
+    margin-left: 18px;
+}
+
+pre {
+    background: var(--code-bg);
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    overflow-x: auto;
+    color: #b5e3ff;
+}
+
+body.light pre {
+    color: #0f172a;
+}
+
+.prompt {
+    color: var(--accent-soft);
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+    .terminal-body {
+        padding: 16px;
+    }
+    h1, h2 {
+        font-size: 14px;
+    }
+    p, li {
+        font-size: 12px;
+    }
+}
+</style>
+
+<script>
+function showTab(tab) {
+    document.getElementById("en").style.display = tab === 'en' ? 'block' : 'none';
+    document.getElementById("pl").style.display = tab === 'pl' ? 'block' : 'none';
+    document.getElementById("tab-en").classList.toggle("active", tab === 'en');
+    document.getElementById("tab-pl").classList.toggle("active", tab === 'pl');
+}
+
+function toggleMode() {
+    document.body.classList.toggle("light");
+    localStorage.setItem("terminalModeLight", document.body.classList.contains("light"));
+}
+
+window.onload = () => {
+    if (localStorage.getItem("terminalModeLight") === "true") {
+        document.body.classList.add("light");
+    }
+};
+</script>
+</head>
+<body>
+
+<div class="container">
+  <div class="terminal-frame">
+    <div class="terminal-topbar">
+      <div class="terminal-buttons">
+        <div class="terminal-btn red"></div>
+        <div class="terminal-btn yellow"></div>
+        <div class="terminal-btn green"></div>
+      </div>
+      <div class="terminal-title">polsoft.ITS™ //ps-Win-Script//  WINDOWS ACTIVATION TOOLKIT - Help</div>
+      <div class="dark-toggle" onclick="toggleMode()">
+        <i class="fa-solid fa-circle-half-stroke"></i> LIGHT / DARK
+      </div>
+    </div>
+
+    <div class="terminal-body">
+      <div class="logo-polsoft">
+        polsoft.ITS™
+        <div class="logo-sub">London</div>
+      </div>
+
+      <div class="tabs">
+        <div id="tab-en" class="tab active" onclick="showTab('en')">
+          <i class="fa-solid fa-flag-usa"></i> English
+        </div>
+        <div id="tab-pl" class="tab" onclick="showTab('pl')">
+          <i class="fa-solid fa-flag"></i> Polski
+        </div>
+      </div>
+
+      <!-- ENGLISH -->
+      <div id="en" class="content">
+        <p class="prompt">> README_EN.md loaded successfully...</p>
+
+        <h1><i class="fa-solid fa-toolbox"></i> Windows Activation & License Toolkit</h1>
+        <p><strong>A multilingual Windows licensing management tool (EN/PL)</strong></p>
+
+        <p>
+          This repository contains an advanced, interactive Batch script designed to simplify Windows license management.
+          The toolkit is ideal for IT administrators, technicians, and power users who need quick access to activation status,
+          license details, OEM keys, and essential licensing operations.
+        </p>
+
+        <p>
+          The script supports <strong>English and Polish</strong>, automatically checks for administrator privileges, and uses ANSI color formatting for a clean, readable interface.
+        </p>
+
+        <h2><i class="fa-solid fa-star"></i> Features</h2>
+        <ul>
+          <li>Display activation status</li>
+          <li>Basic license information</li>
+          <li>Detailed license information</li>
+          <li>Read OEM key from BIOS/UEFI</li>
+          <li>Restart the sppsvc licensing service</li>
+          <li>Install a new product key</li>
+          <li>Activate Windows</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-download"></i> Installation & Usage</h2>
+        <ol>
+          <li>Download the file <strong>Windows Activation Tools (en-pl).bat</strong></li>
+          <li>Run it as <strong>Administrator</strong></li>
+          <li>Select your language</li>
+          <li>Use the menu to perform licensing operations</li>
+        </ol>
+
+        <h2><i class="fa-solid fa-circle-info"></i> Requirements</h2>
+        <ul>
+          <li>Windows 10 or Windows 11</li>
+          <li>Administrator privileges</li>
+          <li>ANSI support (enabled automatically)</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-scale-balanced"></i> Legal Notice</h2>
+        <p>
+          This tool <strong>does not provide product keys</strong> and <strong>does not bypass activation mechanisms</strong>.<br>
+          All operations rely on official Windows commands (<code>slmgr</code>, <code>wmic</code>, <code>net</code>).<br>
+          Use only in accordance with Microsoft licensing terms.
+        </p>
+
+        <h2><i class="fa-solid fa-user"></i> Author</h2>
+        <p>
+          <strong>Sebastian Januchowski</strong><br>
+          polsoft.ITS™ London<br>
+          📧 polsoft.its@fastservice.com<br>
+          🌐 https://github.com/seb07uk<br>
+          © 2026 polsoft.ITS London
+        </p>
+
+        <h2><i class="fa-solid fa-file-contract"></i> MIT License</h2>
+        <pre>
+MIT License
+
+Copyright (c) 2026 Sebastian Januchowski
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
+        </pre>
+      </div>
+
+      <!-- POLISH -->
+      <div id="pl" class="content" style="display:none;">
+        <p class="prompt">> README_PL.md załadowano pomyślnie...</p>
+
+        <h1><i class="fa-solid fa-toolbox"></i> Windows Activation & License Toolkit</h1>
+        <p><strong>Wielojęzyczne narzędzie do zarządzania licencją Windows (PL/EN)</strong></p>
+
+        <p>
+          To repozytorium zawiera zaawansowany, interaktywny skrypt Batch umożliwiający szybkie i wygodne zarządzanie licencją systemu Windows.
+          Narzędzie jest idealne dla administratorów IT, serwisantów oraz użytkowników, którzy potrzebują szybkiego dostępu do statusu aktywacji,
+          informacji licencyjnych, klucza OEM oraz podstawowych operacji licencyjnych.
+        </p>
+
+        <p>
+          Skrypt obsługuje <strong>język polski i angielski</strong>, automatycznie sprawdza uprawnienia administratora i korzysta z kolorowego interfejsu ANSI.
+        </p>
+
+        <h2><i class="fa-solid fa-star"></i> Funkcje</h2>
+        <ul>
+          <li>Wyświetlanie statusu aktywacji</li>
+          <li>Podstawowe informacje o licencji</li>
+          <li>Szczegółowe informacje o licencji</li>
+          <li>Odczyt klucza OEM z BIOS/UEFI</li>
+          <li>Restart usługi licencjonowania sppsvc</li>
+          <li>Instalacja nowego klucza produktu</li>
+          <li>Aktywacja systemu Windows</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-download"></i> Instalacja i użycie</h2>
+        <ol>
+          <li>Pobierz plik <strong>Windows Activation Tools (en-pl).bat</strong></li>
+          <li>Uruchom jako <strong>administrator</strong></li>
+          <li>Wybierz język</li>
+          <li>Korzystaj z menu narzędzi licencyjnych</li>
+        </ol>
+
+        <h2><i class="fa-solid fa-circle-info"></i> Wymagania</h2>
+        <ul>
+          <li>Windows 10 lub Windows 11</li>
+          <li>Uprawnienia administratora</li>
+          <li>Obsługa ANSI (włączana automatycznie)</li>
+        </ul>
+
+        <h2><i class="fa-solid fa-scale-balanced"></i> Informacje prawne</h2>
+        <p>
+          To narzędzie <strong>nie dostarcza kluczy produktu</strong> i <strong>nie omija mechanizmów aktywacyjnych</strong>.<br>
+          Wszystkie operacje wykorzystują oficjalne polecenia Windows (<code>slmgr</code>, <code>wmic</code>, <code>net</code>).<br>
+          Używaj zgodnie z licencją Microsoft.
+        </p>
+
+        <h2><i class="fa-solid fa-user"></i> Autor</h2>
+        <p>
+          <strong>Sebastian Januchowski</strong><br>
+          polsoft.ITS™ London<br>
+          📧 polsoft.its@fastservice.com<br>
+          🌐 https://github.com/seb07uk<br>
+          © 2026 polsoft.ITS London
+        </p>
+
+        <h2><i class="fa-solid fa-file-contract"></i> Licencja MIT</h2>
+        <pre>
+MIT License
+
+Copyright (c) 2026 Sebastian Januchowski
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files...
+        </pre>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
