@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinGet Deployer v2.1 | polsoft.ITS™ London</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #141414;
+            --accent-green: #40ff40;
+            --text-main: #ffffff;
+            --text-dim: #b0b0b0;
+            --border: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--accent-green);
+            padding: 5px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            padding: 60px 20px 40px;
+            text-align: center;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            position: relative;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--accent-green);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin: 10px 0;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .screenshot-container {
+            margin: 40px auto;
+            max-width: 900px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 15px rgba(64, 255, 64, 0.1);
+            background: #1a1a1a;
+            position: relative;
+        }
+
+        .window-header {
+            background: #252525;
+            padding: 10px 15px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #444; }
+
+        .app-screenshot {
+            display: block;
+            width: 100%;
+            height: auto;
+            filter: brightness(1.05);
+        }
+
+        .btn-download {
+            background-color: var(--accent-green);
+            color: #000;
+            padding: 18px 45px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(64, 255, 64, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .card h3 {
+            color: var(--accent-green);
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            margin-bottom: 12px;
+            padding-left: 28px;
+            position: relative;
+            color: #e0e0e0;
+        }
+
+        .feature-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        .spec-box {
+            background: #000;
+            padding: 25px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #888;
+            border-left: 4px solid var(--accent-green);
+            margin-top: 60px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            background-color: #050505;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* Utility classes for the new section */
+        .flex { display: flex; }
+        .justify-center { justify-content: center; }
+        .mt-20 { margin-top: 80px; }
+        .mb-10 { margin-bottom: 40px; }
+        .bg-white-5 { background: rgba(255, 255, 255, 0.05); }
+        .p-4 { padding: 16px; }
+        .rounded-2xl { border-radius: 16px; }
+        .border-white-10 { border: 1px solid rgba(255, 255, 255, 0.1); }
+        .max-w-full { max-width: 100%; }
+        .h-auto { height: auto; }
+        .opacity-90 { opacity: 0.9; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="lang-switcher">
+        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">PL</button>
+    </div>
+    <span class="logo">polsoft.ITS™ LONDON</span>
+    <div class="badge" data-i18n="badge">STABLE v2.1 REAL-TIME ENGINE</div>
+    <h1>WinGet Deployer</h1>
+    <p class="tagline" data-i18n="tagline">Modernize your software deployment. A powerful, intuitive, and portable management suite for Windows.</p>
+    
+    <a href="https://github.com/seb07uk/WinGet.Deployer/releases/download/IT.Administration.Tools.Productivity.Software.GUI.Front-end.Package.Managers.Deployment.Tools/WinGet.Deployer.2.1.exe" 
+       class="btn-download" data-i18n="downloadBtn">DOWNLOAD WINGET DEPLOYER 2.1</a>
+
+    <div class="screenshot-container">
+        <div class="window-header">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        </div>
+        <img src="https://raw.githubusercontent.com/seb07uk/WinGet.Deployer/refs/heads/main/screenshot.png" alt="WinGet Deployer Interface" class="app-screenshot">
+    </div>
+</header>
+
+<div class="container">
+    <div class="grid">
+        <div class="card">
+            <h3 data-i18n="f1_title">Visual Intelligence</h3>
+            <ul class="feature-list">
+                <li data-i18n="f1_1"><strong>Dynamic Highlighting:</strong> Instantly identify software matches.</li>
+                <li data-i18n="f1_2"><strong>Smart Suggestions:</strong> Predictive Package ID entries.</li>
+                <li data-i18n="f1_3"><strong>Optimized UX:</strong> Dark and Light visual modes.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3 data-i18n="f2_title">Advanced Control</h3>
+            <ul class="feature-list">
+                <li data-i18n="f2_1"><strong>Batch Operations:</strong> Upgrade library with one click.</li>
+                <li data-i18n="f2_2"><strong>Zero Noise:</strong> Silent background processes.</li>
+                <li data-i18n="f2_3"><strong>Source Audit:</strong> Real-time repository management.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3 data-i18n="f3_title">ITS Architecture</h3>
+            <ul class="feature-list">
+                <li data-i18n="f3_1"><strong>No Install Required:</strong> Fully portable EXE.</li>
+                <li data-i18n="f3_2"><strong>Safe Storage:</strong> Secure %userprofile% paths.</li>
+                <li data-i18n="f3_3"><strong>Built-in Recovery:</strong> Dedicated repair module.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="spec-box">
+        // DEPLOYMENT SPECIFICATION // LONDON_UK<br>
+        [PLATFORM]: Windows 10/11 x64<br>
+        [ENGINE]: Microsoft.WinGet.Client v2.x<br>
+        [CONFIG_ROOT]: %userprofile%\.polsoft\WinGet\settings.json<br>
+        [TIMESTAMP]: 2026-01-26 // POLSOFT.ITS™
+    </div>
+
+    <div class="flex justify-center mt-20 mb-10">
+        <div class="bg-white-5 p-4 rounded-2xl border-white-10">
+            <img src="https://raw.githubusercontent.com/seb07uk/WinGet.Deployer/refs/heads/main/compatible.png" 
+                 alt="Windows Compatibility" 
+                 class="max-w-full h-auto opacity-90">
+        </div>
+    </div>
+</div>
+
+<footer data-i18n="footer">
+    © 2026 polsoft.ITS™ London. All rights reserved.<br>
+    Professional Software Management & Deployment Tools.
+</footer>
+
+<script>
+    const translations = {
+        en: {
+            badge: "STABLE v2.1 REAL-TIME ENGINE",
+            tagline: "Modernize your software deployment. A powerful, intuitive, and portable management suite for Windows.",
+            downloadBtn: "DOWNLOAD WINGET DEPLOYER 2.1",
+            f1_title: "Visual Intelligence",
+            f1_1: "<strong>Dynamic Highlighting:</strong> Instantly identify software matches.",
+            f1_2: "<strong>Smart Suggestions:</strong> Predictive Package ID entries.",
+            f1_3: "<strong>Optimized UX:</strong> Dark and Light visual modes.",
+            f2_title: "Advanced Control",
+            f2_1: "<strong>Batch Operations:</strong> Upgrade library with one click.",
+            f2_2: "<strong>Zero Noise:</strong> Silent background processes.",
+            f2_3: "<strong>Source Audit:</strong> Real-time repository management.",
+            f3_title: "ITS Architecture",
+            f3_1: "<strong>No Install Required:</strong> Fully portable EXE.",
+            f3_2: "<strong>Safe Storage:</strong> Secure %userprofile% paths.",
+            f3_3: "<strong>Built-in Recovery:</strong> Dedicated repair module.",
+            footer: "© 2026 polsoft.ITS™ London. All rights reserved.<br>Professional Software Management & Deployment Tools.",
+            btnLabel: "PL"
+        },
+        pl: {
+            badge: "STABLE v2.1 SILNIK CZASU RZECZYWISTEGO",
+            tagline: "Zmodernizuj wdrażanie oprogramowania. Potężny, intuicyjny i przenośny pakiet zarządzający dla systemu Windows.",
+            downloadBtn: "POBIERZ WINGET DEPLOYER 2.1",
+            f1_title: "Wizualna Inteligencja",
+            f1_1: "<strong>Dynamiczne Wyróżnianie:</strong> Błyskawiczna identyfikacja dopasowań.",
+            f1_2: "<strong>Inteligentne Sugestie:</strong> Przewidywanie identyfikatorów.",
+            f1_3: "<strong>Zoptymalizowane UX:</strong> Tryb ciemny i jasny.",
+            f2_title: "Zaawansowana Kontrola",
+            f2_1: "<strong>Operacje Masowe:</strong> Aktualizacja jednym kliknięciem.",
+            f2_2: "<strong>Brak Zakłóceń:</strong> Procesy działające w tle.",
+            f2_3: "<strong>Audyt Źródeł:</strong> Zarządzanie repozytoriami.",
+            f3_title: "Architektura ITS",
+            f3_1: "<strong>Brak Instalacji:</strong> W pełni przenośny plik EXE.",
+            f3_2: "<strong>Bezpieczne Przechowywanie:</strong> Ścieżki %userprofile%.",
+            f3_3: "<strong>Wbudowane Odzyskiwanie:</strong> Dedykowany moduł naprawy.",
+            footer: "© 2026 polsoft.ITS™ London. Wszelkie prawa zastrzeżone.<br>Profesjonalne Narzędzia do Zarządzania i Wdrażania Oprogramowania.",
+            btnLabel: "EN"
+        }
+    };
+
+    let currentLang = 'en';
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'pl' : 'en';
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            el.innerHTML = translations[currentLang][key];
+        });
+        document.getElementById('langBtn').innerText = translations[currentLang].btnLabel;
+    }
+</script>
+</body>
+</html>
